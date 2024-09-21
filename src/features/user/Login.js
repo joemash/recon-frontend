@@ -1,37 +1,46 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import ErrorText from "../../components/Typography/ErrorText";
-import InputText from "../../components/Input/InputText";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import ErrorText from '../../components/Typography/ErrorText';
+import InputText from '../../components/Input/InputText';
+import { login } from './authSlice';
 
-function Login() {
-  const INITIAL_LOGIN_OBJ = {
-    password: "",
-    emailId: "",
-  };
-
+const Login = () => {
+  const dispatch = useDispatch();
+  const [loginObj, setLoginObj] = useState({
+    password: '',
+    email: '',
+  });
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const submitForm = (e) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
 
-    if (loginObj.emailId.trim() === "")
-      return setErrorMessage("Email is required! (use any value)");
-    if (loginObj.password.trim() === "")
-      return setErrorMessage("Password is required! (use any value)");
+    if (loginObj.email.trim() === '')
+      return setErrorMessage('Email is required!');
+    if (loginObj.password.trim() === '')
+      return setErrorMessage('Password is required!');
     else {
       setLoading(true);
-      //TODO! Call API to check user credentials and save token in localstorage
-      localStorage.setItem("token", "DumyTokenHere");
-      setLoading(false);
-      window.location.href = "/app/reconciliations";
+      dispatch(login(loginObj))
+        .unwrap()
+        .then((response) => {
+          const { token } = response;
+          localStorage.setItem('token', token.access_token);
+          setLoading(false);
+          window.location.href = '/app/reconciliations';
+        })
+        .catch((error) => {
+          setLoading(false);
+          setErrorMessage(error.message);
+        });
     }
   };
 
   const updateFormValue = ({ updateType, value }) => {
-    setErrorMessage("");
+    setErrorMessage('');
     setLoginObj({ ...loginObj, [updateType]: value });
   };
 
@@ -44,8 +53,8 @@ function Login() {
             <div className="mb-4">
               <InputText
                 type="email"
-                defaultValue={loginObj.emailId}
-                updateType="emailId"
+                defaultValue={loginObj.email}
+                updateType="email"
                 containerStyle="mt-4"
                 labelTitle="Email"
                 updateFormValue={updateFormValue}
@@ -88,6 +97,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

@@ -1,40 +1,44 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import ErrorText from "../../components/Typography/ErrorText";
-import InputText from "../../components/Input/InputText";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import ErrorText from '../../components/Typography/ErrorText';
+import InputText from '../../components/Input/InputText';
+import { registerUser } from './authSlice';
 
-function Register() {
-  const INITIAL_REGISTER_OBJ = {
-    name: "",
-    password: "",
-    emailId: "",
-  };
-
+const Register = () => {
+  const dispatch = useDispatch();
+  const [registerObj, setRegisterObj] = useState({
+    password: '',
+    email: '',
+  });
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const submitForm = (e) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
 
-    if (registerObj.name.trim() === "")
-      return setErrorMessage("Name is required! (use any value)");
-    if (registerObj.emailId.trim() === "")
-      return setErrorMessage("Email is required! (use any value)");
-    if (registerObj.password.trim() === "")
-      return setErrorMessage("Password is required! (use any value)");
+    if (registerObj.email.trim() === '')
+      return setErrorMessage('Email is required!');
+    if (registerObj.password.trim() === '')
+      return setErrorMessage('Password is required!');
     else {
       setLoading(true);
-      //TODO! Call API to check user credentials and save token in localstorage
-      localStorage.setItem("token", "DumyTokenHere");
-      setLoading(false);
-      window.location.href = "/app/reconciliations";
+      dispatch(registerUser(registerObj))
+        .unwrap()
+        .then(() => {
+          setLoading(false);
+          window.location.href = '/app/reconciliations';
+        })
+        .catch((error) => {
+          setLoading(false);
+          setErrorMessage(error.message);
+        });
     }
   };
 
   const updateFormValue = ({ updateType, value }) => {
-    setErrorMessage("");
+    setErrorMessage('');
     setRegisterObj({ ...registerObj, [updateType]: value });
   };
 
@@ -44,17 +48,10 @@ function Register() {
         <div className="bg-base-100 rounded-xl p-8">
           <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
           <form onSubmit={(e) => submitForm(e)}>
-            <div className="mb-4">
+            <div className="mb-4"> 
               <InputText
-                defaultValue={registerObj.name}
-                updateType="name"
-                containerStyle="mt-4"
-                labelTitle="Name"
-                updateFormValue={updateFormValue}
-              />
-              <InputText
-                defaultValue={registerObj.emailId}
-                updateType="emailId"
+                defaultValue={registerObj.email}
+                updateType="email"
                 containerStyle="mt-4"
                 labelTitle="Email"
                 updateFormValue={updateFormValue}
@@ -90,6 +87,6 @@ function Register() {
       </div>
     </div>
   );
-}
+};
 
 export default Register;
