@@ -9,6 +9,9 @@ import {
   fetchReconciliationResults,
   selectReconById,
 } from "../../features/recon/reconciliationsSlice";
+import {handleDownloadCSV} from "../../utils/globalConstantUtil"
+
+
 
 function ReconDetailPage() {
   const dispatch = useDispatch();
@@ -31,8 +34,22 @@ function ReconDetailPage() {
     { key: "differences", label: "Differences" },
   ];
 
+  const handleRowClick = (reconciliation) => {
+    handleDownloadCSV(reconciliation.result)
+  };
+
+  const TopSideButtons = () => {
+    return (
+      <div className="inline-block float-right">
+        <button onClick={() => handleRowClick(reconciliation)} className="btn btn-primary btn-sm">
+          Download Report
+        </button>
+      </div>
+    );
+  };
+
   return (
-    <TitleCard title="Recon Detail" topMargin="mt-2">
+    <TitleCard title="Recon Detail" topMargin="mt-2" TopSideButtons={<TopSideButtons/>}>
       <div role="tablist" className="tabs tabs-bordered">
         {tabs.map((tab) => (
           <a
