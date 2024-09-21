@@ -5,7 +5,6 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Create Async Thunk for fetching reconciliation results
 export const fetchReconciliationResults = createAsyncThunk(
   "reconciliations/fetchResults",
   async (_, { rejectWithValue }) => {
@@ -14,38 +13,30 @@ export const fetchReconciliationResults = createAsyncThunk(
       return response.data.results;
     } catch (error) {
       return rejectWithValue(
-        error.response ? error.response.data : error.message
+        error.response.data.detail || "Unable to fetch reconciliations"
       );
     }
   }
 );
 
-// Async action to handle file uploads
 export const uploadFiles = createAsyncThunk(
   "reconciliations/uploadFiles",
-  async ({ formData, setUploadProgress }, { rejectWithValue }) => {
+  async ({ formData }, { rejectWithValue }) => {
     try {
       const response = await axios.post("/v1/reconciliation/reconcile/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-        },
-        // Handle progress events
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          if (setUploadProgress) setUploadProgress(progress); // Update the progress state
-        },
+        }, 
       });
 
       toast.success("Files uploaded successfully");
       return response.data;
     } catch (error) {
-      toast.error("File upload failed");
-      return rejectWithValue(error.response.data || "Upload failed");
+      return rejectWithValue(error.response?.data?.detail || "Upload failed");
     }
   }
 );
+
 
 const reconciliationsSlice = createSlice({
   name: "reconciliation",

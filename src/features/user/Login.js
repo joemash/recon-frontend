@@ -27,8 +27,9 @@ const Login = () => {
       dispatch(login(loginObj))
         .unwrap()
         .then((response) => {
-          const { token } = response;
-          localStorage.setItem('token', token.access_token);
+          const { access, refresh } = response;
+          localStorage.setItem('access_token', access);
+          localStorage.setItem('refresh_token', refresh);
           setLoading(false);
           window.location.href = '/app/reconciliations';
         })

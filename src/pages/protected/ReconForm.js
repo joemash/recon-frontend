@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Upload, FileText, AlertTriangle, Check } from "lucide-react";
 import { clearError, uploadFiles } from "../../features/recon/reconciliationsSlice";
 import { toast } from "react-toastify";
@@ -8,9 +9,9 @@ import TitleCard from "../../components/Cards/TitleCard";
 const FileUploadForm = () => {
   const [sourceFile, setSourceFile] = useState(null);
   const [targetFile, setTargetFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.reconciliations);
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.reconciliation);
 
   const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
@@ -35,15 +36,23 @@ const FileUploadForm = () => {
     }
 
     const formData = new FormData();
-    formData.append("source", sourceFile);
-    formData.append("target", targetFile);
+    formData.append("source_file", sourceFile);
+    formData.append("target_file", targetFile);
 
-    // Dispatch action for uploading files
-    dispatch(uploadFiles(formData, setUploadProgress));
+    dispatch(uploadFiles({ formData }))
+      .unwrap() // Unwrap to get the direct result or error
+      .then((result) => {
+        const id = result.id;
+        navigate(`/app/reconciliations/${id}`);
+      })
+      .catch((error) => {
+        toast.error("Upload failed");
+    });
+
   };
 
+
   useEffect(() => {
-    // Clear any existing errors when this form is mounted
     dispatch(clearError());
   }, [dispatch]);
 
@@ -119,16 +128,6 @@ const FileUploadForm = () => {
             </button>
           </div>
         </form>
-
-        {/* Progress Bar */}
-        {loading && (
-          <div className="w-full bg-gray-200 rounded-full h-4 mt-6">
-            <div
-              className="bg-blue-600 h-4 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-        )}
 
         {/* Error Alert */}
         {error && (
