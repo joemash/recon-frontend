@@ -67,7 +67,7 @@ export const login = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      if (error.response && error.response.status === 400) {
+      if (error.response && error.response.status === 401) {
         return rejectWithValue(error.response.data.detail || 'Invalid username or password');
       }
       return rejectWithValue(error.message || 'Something went wrong');

@@ -10,7 +10,6 @@ const checkAuth = () => {
   const refreshToken = localStorage.getItem("refresh_token");
   const PUBLIC_ROUTES = ["login", "forgot-password", "register"];
   const isPublicPage = PUBLIC_ROUTES.some((r) => window.location.href.includes(r));
-
   // Redirect to login if token is missing and not on a public page
   if (!accessToken && !isPublicPage) {
     window.location.href = "/login";
@@ -40,7 +39,6 @@ const checkAuth = () => {
     async function (error) {
       document.body.classList.remove("loading-indicator");
       const originalRequest = error.config;
-
       // Check for 401 error and valid refresh token
       if (error.response && error.response.status === 401 && refreshToken && !originalRequest._retry) {
         originalRequest._retry = true; // Mark this request as retried
@@ -52,7 +50,7 @@ const checkAuth = () => {
           });
 
           // Save the new tokens in localStorage if refresh was successful
-          const { access, refresh } = response.data;
+          const { access, refresh } = response;
           localStorage.setItem("access_token", access);
           localStorage.setItem("refresh_token", refresh);
 

@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ErrorText from '../../components/Typography/ErrorText';
 import InputText from '../../components/Input/InputText';
 import { login } from './authSlice';
 
 const Login = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [loginObj, setLoginObj] = useState({
     password: '',
     email: '',
@@ -29,8 +28,8 @@ const Login = () => {
         .unwrap()
         .then( () => {
           setLoading(false);
-          navigate('/app/reconciliations');
-        })
+          window.location.href = "/app/reconciliations"; 
+          })
         .catch((error) => {
           setLoading(false);
           setErrorMessage(error);
